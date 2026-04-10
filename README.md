@@ -1,4 +1,5 @@
 <div align="center">
+	<img src="logo.png" width="400">
 	<h1>Nipel Is (a) Polynomial Expression Language</h1>
 </div>
 
