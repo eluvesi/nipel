@@ -1,5 +1,10 @@
 # binary
 nipel
 
+# objects
+*.o
+
 # generated sources
+parser.h
 lexer.c
+parser.c
