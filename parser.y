@@ -1,6 +1,8 @@
 %{
 #include <stdio.h>
 
+extern FILE *yyin;
+
 int yylex(void);
 void yyerror(const char *s);
 %}
@@ -78,7 +80,23 @@ void yyerror(const char *s)
     fprintf(stderr, "Parse error: %s\n", s);
 }
 
-int main (void)
+int main (int argc, char *argv[])
 {
-	return yyparse();
+	if (argc < 2 || (argv[1][0] == '-' && argv[1][1] == '\0'))
+		yyin = stdin;
+
+	else {
+		yyin = fopen(argv[1], "r");
+		if (!yyin) {
+			perror(argv[1]);
+			return 1;
+		}
+	}
+
+	yyparse();
+
+	if (yyin != stdin)
+		fclose(yyin);
+
+	return 0;
 }
