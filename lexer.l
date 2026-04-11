@@ -2,7 +2,7 @@
 #include "parser.h"
 %}
 
-%option yylineno noyywrap
+%option yylineno noyywrap noinput nounput
 
 %%
 
