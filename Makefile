@@ -1,21 +1,32 @@
-all: nipel
+CC = gcc
+LEX = flex
+YACC = bison
 
-nipel: lexer.o parser.o
-	cc -o nipel lexer.o parser.o
+CFLAGS = -Wall -Wextra -Wpedantic -std=gnu99
+YFLAGS = -d
+
+TARGET = nipel
+
+OBJS = lexer.o parser.o
+
+all: $(TARGET)
+
+$(TARGET): $(OBJS)
+	$(CC) $(CFLAGS) -o $@ $^
 
 lexer.o: lexer.c parser.h
-	cc -c lexer.c
+	$(CC) $(CFLAGS) -c $<
 
 parser.o: parser.c
-	cc -c parser.c
+	$(CC) $(CFLAGS) -c $<
 
 lexer.c: lexer.l parser.h
-	flex -o lexer.c lexer.l
+	$(LEX) -o lexer.c $<
 
 parser.c parser.h: parser.y
-	bison -d -o parser.c parser.y
+	$(YACC) $(YFLAGS) -o $@ $<
 
 clean:
-	rm -f nipel lexer.c parser.c parser.h *.o
+	rm -f $(TARGET) $(OBJS) lexer.c parser.c parser.h 
 
 .PHONY: all clean
