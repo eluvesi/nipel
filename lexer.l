@@ -10,8 +10,8 @@
 [[:upper:]][[:upper:][:digit:]_]*       return IDENT;
 \"[^\n"]*\"                             return STRING;
 
-[[:digit:]]+\.[[:digit:]]+      return FLOAT;
-[[:digit:]]+                    return INTEGER;
+[[:digit:]]+\.[[:digit:]]+              return FLOAT;
+[[:digit:]]+                            return INTEGER;
 
 "="     return ASSIGN;
 "+"     return ADD;
@@ -29,10 +29,8 @@
 
 .	{
 		fprintf(stderr,
-			"Lexical error at line %d: unrecognized symbol \'%s\'\n",
-			yylineno,
-			yytext
-		);
+		        "Lexical error at line %d: unrecognized symbol \'%s\'\n",
+		        yylineno, yytext);
 		exit(1);
 	}
 
