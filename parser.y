@@ -48,8 +48,8 @@ term:
 	;
 
 factor:
-	  ADD power
-	| SUB power
+	  ADD factor
+	| SUB factor
 	| power
 	;
 
