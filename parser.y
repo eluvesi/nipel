@@ -2,6 +2,8 @@
 #include <stdio.h>
 
 extern FILE *yyin;
+extern int yylineno;
+extern char *yytext;
 
 int yylex(void);
 void yyerror(const char *s);
@@ -73,7 +75,7 @@ primary:
 
 void yyerror(const char *s)
 {
-    fprintf(stderr, "Parse error: %s\n", s);
+    fprintf(stderr, "%s at line %d near '%s'\n", s, yylineno, yytext);
 }
 
 int main(int argc, char *argv[])

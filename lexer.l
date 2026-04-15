@@ -29,7 +29,7 @@
 
 .	{
 		fprintf(stderr,
-		        "Lexical error at line %d: unrecognized symbol \'%s\'\n",
+		        "lexical error at line %d: illegal character '%s'\n",
 		        yylineno, yytext);
 		exit(1);
 	}
