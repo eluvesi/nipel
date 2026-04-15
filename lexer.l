@@ -1,4 +1,5 @@
 %{
+#include <stdlib.h>
 #include "parser.h"
 %}
 
@@ -6,12 +7,30 @@
 
 %%
 
-[[:lower:]]                             return PVAR;
-[[:upper:]][[:upper:][:digit:]_]*       return IDENT;
-\"[^\n"]*\"                             return STRING;
+[[:lower:]] {
+                yylval.sval = strdup(yytext);
+                return PVAR;
+            }
 
-[[:digit:]]+\.[[:digit:]]+              return FLOAT;
-[[:digit:]]+                            return INTEGER;
+[[:upper:]][[:upper:][:digit:]_]* {
+	                                  yylval.sval = strdup(yytext);
+	                                  return IDENT;
+	                              }
+
+\"[^\n"]*\"  {
+                 yylval.sval = strndup(yytext + 1, yyleng - 2);
+                 return STRING;
+             }
+
+[[:digit:]]+\.[[:digit:]]+ {
+	                           yylval.dval = atof(yytext);
+	                           return FLOAT;
+                           }
+
+[[:digit:]]+ {
+	             yylval.ival = atoi(yytext);
+	             return INTEGER;
+             }
 
 "="     return ASSIGN;
 "+"     return ADD;

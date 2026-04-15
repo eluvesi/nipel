@@ -1,5 +1,6 @@
 %{
 #include <stdio.h>
+#include <math.h>
 
 extern FILE *yyin;
 extern int yylineno;
@@ -12,9 +13,19 @@ void yyerror(const char *s);
 %defines "parser.h"
 %output  "parser.c"
 
-%token PVAR IDENT INTEGER FLOAT STRING NEWLINE
+%union {
+	long ival;
+	double dval;
+	char *sval;
+}
+
+%token <ival> INTEGER
+%token <dval> FLOAT
+%token <sval> STRING IDENT PVAR
 %token ASSIGN ADD SUB MUL DIV POW
-%token LPAREN RPAREN DOLLAR
+%token LPAREN RPAREN DOLLAR NEWLINE
+
+%type <dval> expression term factor power exponent primary
 
 %%
 
@@ -24,51 +35,51 @@ program:
 	;
 
 statement:
-	  assignment NEWLINE  { printf("=> assign\n"); }
-	| expression NEWLINE  { printf("=> expr\n");   }
-	| STRING NEWLINE      { printf("=> string\n"); }
+	  assignment NEWLINE
+	| expression NEWLINE  { printf("=> %g\n", $1);   }
+	| STRING NEWLINE      { printf("=> %s\n", $1); }
 	| NEWLINE
 	;
 
 assignment:
-	  IDENT ASSIGN expression
+	  IDENT ASSIGN expression  { printf("=> %s = %g\n", $1, $3); }
 	;
 
 expression:
-	  expression ADD term
-	| expression SUB term
-	| term
+	  expression ADD term  { $$ = $1 + $3; }
+	| expression SUB term  { $$ = $1 - $3; }
+	| term                 { $$ = $1; }
 	;
 
 term:
-	  term MUL factor
-	| term DIV factor
-	| term power
-	| factor
+	  term MUL factor  { $$ = $1 * $3; }
+	| term DIV factor  { $$ = $1 / $3; }
+	| term power       { $$ = $1 * $2; }
+	| factor           { $$ = $1; }
 	;
 
 factor:
-	  ADD factor
-	| SUB factor
-	| power
+	  ADD factor  { $$ = $2; }
+	| SUB factor  { $$ = -$2; }
+	| power       { $$ = $1; }
 	;
 
 power:
-	  primary POW exponent
-	| primary
+	  primary POW exponent  { $$ = pow($1, $3); }
+	| primary               { $$ = $1; }
 	;
 
 exponent:
-	  INTEGER POW exponent
-	| INTEGER
+	  INTEGER POW exponent  { $$ = pow($1, $3); }
+	| INTEGER               { $$ = $1; }
 	;
 
 primary:
-	  INTEGER
-	| FLOAT
-	| PVAR 
-	| DOLLAR IDENT 
-	| LPAREN expression RPAREN
+	  INTEGER                   { $$ = $1; }
+	| FLOAT                     { $$ = $1; }
+	/* | PVAR */
+	/* | DOLLAR IDENT */
+	| LPAREN expression RPAREN  { $$ = $2; }
 	;
 
 %%

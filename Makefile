@@ -12,7 +12,7 @@ OBJS = lexer.o parser.o
 all: $(TARGET)
 
 $(TARGET): $(OBJS)
-	$(CC) $(CFLAGS) -o $@ $^
+	$(CC) $(CFLAGS) -o $@ $^ -lm
 
 lexer.o: lexer.c parser.h
 	$(CC) $(CFLAGS) -c $<
