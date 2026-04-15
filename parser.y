@@ -33,36 +33,32 @@ assignment:
 	;
 
 expression:
-	  additive-expr
+	  expression ADD term
+	| expression SUB term
+	| term
 	;
 
-additive-expr:
-	  multiplicative-expr
-	| additive-expr ADD multiplicative-expr
-	| additive-expr SUB multiplicative-expr
+term:
+	  term MUL factor
+	| term DIV factor
+	| term power
+	| factor
 	;
 
-multiplicative-expr:
-	  unary-expr
-	| multiplicative-expr exponential-expr
-	| multiplicative-expr MUL unary-expr
-	| multiplicative-expr DIV unary-expr
+factor:
+	  ADD power
+	| SUB power
+	| power
 	;
 
-unary-expr:
-	  exponential-expr
-	| ADD exponential-expr
-	| SUB exponential-expr
+power:
+	  primary POW exponent
+	| primary
 	;
 
-exponential-expr:
-	  primary
-	| primary POW exponential-power
-	;
-
-exponential-power:
-	  INTEGER
-	| INTEGER POW exponential-power
+exponent:
+	  INTEGER POW exponent
+	| INTEGER
 	;
 
 primary:
@@ -84,7 +80,6 @@ int main (int argc, char *argv[])
 {
 	if (argc < 2 || (argv[1][0] == '-' && argv[1][1] == '\0'))
 		yyin = stdin;
-
 	else {
 		yyin = fopen(argv[1], "r");
 		if (!yyin) {
