@@ -7,7 +7,7 @@ YFLAGS = -d
 
 TARGET = nipel
 
-OBJ = main.o lexer.o parser.o ast.o eval.o
+OBJ = main.o lexer.o parser.o ast.o eval.o env.o
 
 all: $(TARGET)
 
@@ -20,20 +20,23 @@ main.o: main.c
 lexer.o: lexer.c parser.h
 	$(CC) $(CFLAGS) -c $<
 
-parser.o: parser.c ast.h
+parser.o: parser.c ast.h eval.h
 	$(CC) $(CFLAGS) -c $<
 
 ast.o: ast.c ast.h
 	$(CC) $(CFLAGS) -c $<
 
-eval.o: eval.c eval.h ast.h
+eval.o: eval.c eval.h ast.h env.h
+	$(CC) $(CFLAGS) -c $<
+
+env.o: env.c env.h
 	$(CC) $(CFLAGS) -c $<
 
 lexer.c: lexer.l parser.h
 	$(LEX) -o $@ $<
 
 parser.c parser.h: parser.y
-	$(YACC) $(YFLAGS) -o $@ $<
+	$(YACC) $(YFLAGS) $<
 
 clean:
 	rm -f $(TARGET) $(OBJ) lexer.c parser.c parser.h 

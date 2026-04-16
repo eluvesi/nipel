@@ -3,6 +3,6 @@
 
 #include "ast.h"
 
-double eval(Treeptr t);
+double eval(Node t);
 
 #endif /* ifndef EVAL_H */

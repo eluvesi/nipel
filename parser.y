@@ -24,7 +24,7 @@
 %union {
 	double dval;
 	char *sval;
-	Treeptr node;
+	Node node;
 }
 
 %token <dval> NUMBER
@@ -32,54 +32,59 @@
 %token ASSIGN ADD SUB MUL DIV POW
 %token LPAREN RPAREN DOLLAR NEWLINE
 
-%type <node> expression term factor power primary
+%type <node> expression term factor power primary assignment
 
 %%
 
 program:
 	  /* empty */
-	| program statement
+	| program line
 	;
 
-statement:
-	  assignment NEWLINE
-	| expression NEWLINE  { printf("%g\n", eval($1)); }
-	| STRING NEWLINE      { puts($1); }
+line:
+	  statement NEWLINE
 	| NEWLINE
 	;
 
+statement:
+	  assignment { printf("%g\n", eval($1)); }
+	| expression { printf("%g\n", eval($1)); }
+	| STRING     { puts($1); }
+	;
+
 assignment:
-	  IDENT ASSIGN expression  { printf("%s = %g\n", $1, eval($3)); }
+	  IDENT ASSIGN assignment  { $$ = node_assign($1, $3); }
+	| IDENT ASSIGN expression  { $$ = node_assign($1, $3); }
 	;
 
 expression:
-	  expression ADD term  { $$ = new_binop(OP_ADD, $1, $3); }
-	| expression SUB term  { $$ = new_binop(OP_SUB, $1, $3); }
+	  expression ADD term  { $$ = node_binop(OP_ADD, $1, $3); }
+	| expression SUB term  { $$ = node_binop(OP_SUB, $1, $3); }
 	| term                 { $$ = $1; }
 	;
 
 term:
-	  term MUL factor  { $$ = new_binop(OP_MUL, $1, $3); }
-	| term DIV factor  { $$ = new_binop(OP_DIV, $1, $3); }
-	| term power       { $$ = new_binop(OP_MUL, $1, $2); }
+	  term MUL factor  { $$ = node_binop(OP_MUL, $1, $3); }
+	| term DIV factor  { $$ = node_binop(OP_DIV, $1, $3); }
+	| term power       { $$ = node_binop(OP_MUL, $1, $2); }
 	| factor           { $$ = $1; }
 	;
 
 factor:
-	  SUB factor  { $$ = new_unop(OP_NEG, $2); }
+	  SUB factor  { $$ = node_unop(OP_NEG, $2); }
 	| ADD factor  { $$ = $2; }
 	| power       { $$ = $1; }
 	;
 
 power:
-	  primary POW power  { $$ = new_binop(OP_POW, $1, $3); }
+	  primary POW power  { $$ = node_binop(OP_POW, $1, $3); }
 	| primary            { $$ = $1; }
 	;
 
 primary:
-	  NUMBER                    { $$ = new_const($1); }
+	  NUMBER                    { $$ = node_const($1); }
 	/* | PVAR */
-	/* | DOLLAR IDENT */
+	| DOLLAR IDENT              { $$ = node_var($2); }
 	| LPAREN expression RPAREN  { $$ = $2; }
 	;
 
