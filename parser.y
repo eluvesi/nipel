@@ -8,7 +8,7 @@
 	int yylex(void);
 	void yyerror(const char *s)
 	{
-		fprintf(stderr, "%s at line %d near '%s'\n", s, 
+		fprintf(stderr, "%s at line %d near '%s'\n", s,
 		        yytext[0] == '\n' ? yylineno - 1 : yylineno,
 		        yytext[0] == '\n' ? "\\n" : yytext);
 	}
@@ -22,19 +22,17 @@
 %output  "parser.c"
 
 %union {
-	long ival;
 	double dval;
 	char *sval;
 	Treeptr node;
 }
 
-%token <ival> INTEGER
-%token <dval> FLOAT
+%token <dval> NUMBER
 %token <sval> STRING IDENT PVAR
 %token ASSIGN ADD SUB MUL DIV POW
 %token LPAREN RPAREN DOLLAR NEWLINE
 
-%type <node> expression term factor power exponent primary
+%type <node> expression term factor power primary
 
 %%
 
@@ -74,18 +72,12 @@ factor:
 	;
 
 power:
-	  primary POW exponent  { $$ = new_binop(OP_POW, $1, $3); }
-	| primary               { $$ = $1; }
-	;
-
-exponent:
-	  INTEGER POW exponent  { $$ = new_binop(OP_POW, new_const($1), $3); }
-	| INTEGER               { $$ = new_const($1); }
+	  primary POW power  { $$ = new_binop(OP_POW, $1, $3); }
+	| primary            { $$ = $1; }
 	;
 
 primary:
-	  INTEGER                   { $$ = new_const($1); }
-	| FLOAT                     { $$ = new_const($1); }
+	  NUMBER                    { $$ = new_const($1); }
 	/* | PVAR */
 	/* | DOLLAR IDENT */
 	| LPAREN expression RPAREN  { $$ = $2; }

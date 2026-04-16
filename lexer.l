@@ -13,24 +13,19 @@
             }
 
 [[:upper:]][[:upper:][:digit:]_]* {
-	                                  yylval.sval = strdup(yytext);
-	                                  return IDENT;
-	                              }
+                                      yylval.sval = strdup(yytext);
+                                      return IDENT;
+                                  }
 
-\"[^\n"]*\"  {
-                 yylval.sval = strndup(yytext + 1, yyleng - 2);
-                 return STRING;
-             }
+\"[^\n"]*\" {
+                yylval.sval = strndup(yytext + 1, yyleng - 2);
+                return STRING;
+            }
 
-[[:digit:]]+\.[[:digit:]]+ {
-	                           yylval.dval = atof(yytext);
-	                           return FLOAT;
-                           }
-
-[[:digit:]]+ {
-	             yylval.ival = atoi(yytext);
-	             return INTEGER;
-             }
+[[:digit:]]+(\.[[:digit:]]+)? {
+                                  yylval.dval = atof(yytext);
+                                  return NUMBER;
+                              }
 
 "="     return ASSIGN;
 "+"     return ADD;
