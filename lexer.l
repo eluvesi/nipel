@@ -48,8 +48,8 @@
 
 .	{
 		fprintf(stderr,
-		        "lexical error at line %d: illegal character '%s'\n",
-		        yylineno, yytext);
+		        "lexical error at line %d: illegal character '%c' (%d)\n",
+		        yylineno, yytext[0], yytext[0]);
 		exit(1);
 	}
 

@@ -8,7 +8,9 @@
 	int yylex(void);
 	void yyerror(const char *s)
 	{
-		fprintf(stderr, "%s at line %d near '%s'\n", s, yylineno, yytext);
+		fprintf(stderr, "%s at line %d near '%s'\n", s, 
+		        yytext[0] == '\n' ? yylineno - 1 : yylineno,
+		        yytext[0] == '\n' ? "\\n" : yytext);
 	}
 }
 
