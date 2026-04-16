@@ -1,14 +1,20 @@
-%{
-#include <stdio.h>
-#include <math.h>
+%code {
+	#include <stdio.h>
+	#include "eval.h"
 
-extern FILE *yyin;
-extern int yylineno;
-extern char *yytext;
+	extern int yylineno;
+	extern char *yytext;
 
-int yylex(void);
-void yyerror(const char *s);
-%}
+	int yylex(void);
+	void yyerror(const char *s)
+	{
+		fprintf(stderr, "%s at line %d near '%s'\n", s, yylineno, yytext);
+	}
+}
+
+%code requires {
+	#include "ast.h"
+}
 
 %defines "parser.h"
 %output  "parser.c"
@@ -17,6 +23,7 @@ void yyerror(const char *s);
 	long ival;
 	double dval;
 	char *sval;
+	Treeptr node;
 }
 
 %token <ival> INTEGER
@@ -25,7 +32,7 @@ void yyerror(const char *s);
 %token ASSIGN ADD SUB MUL DIV POW
 %token LPAREN RPAREN DOLLAR NEWLINE
 
-%type <dval> expression term factor power exponent primary
+%type <node> expression term factor power exponent primary
 
 %%
 
@@ -36,75 +43,50 @@ program:
 
 statement:
 	  assignment NEWLINE
-	| expression NEWLINE  { printf("=> %g\n", $1);   }
-	| STRING NEWLINE      { printf("=> %s\n", $1); }
+	| expression NEWLINE  { printf("%g\n", eval($1)); }
+	| STRING NEWLINE      { puts($1); }
 	| NEWLINE
 	;
 
 assignment:
-	  IDENT ASSIGN expression  { printf("=> %s = %g\n", $1, $3); }
+	  IDENT ASSIGN expression  { printf("%s = %g\n", $1, eval($3)); }
 	;
 
 expression:
-	  expression ADD term  { $$ = $1 + $3; }
-	| expression SUB term  { $$ = $1 - $3; }
+	  expression ADD term  { $$ = new_binop(OP_ADD, $1, $3); }
+	| expression SUB term  { $$ = new_binop(OP_SUB, $1, $3); }
 	| term                 { $$ = $1; }
 	;
 
 term:
-	  term MUL factor  { $$ = $1 * $3; }
-	| term DIV factor  { $$ = $1 / $3; }
-	| term power       { $$ = $1 * $2; }
+	  term MUL factor  { $$ = new_binop(OP_MUL, $1, $3); }
+	| term DIV factor  { $$ = new_binop(OP_DIV, $1, $3); }
+	| term power       { $$ = new_binop(OP_MUL, $1, $2); }
 	| factor           { $$ = $1; }
 	;
 
 factor:
-	  ADD factor  { $$ = $2; }
-	| SUB factor  { $$ = -$2; }
+	  SUB factor  { $$ = new_unop(OP_NEG, $2); }
+	| ADD factor  { $$ = $2; }
 	| power       { $$ = $1; }
 	;
 
 power:
-	  primary POW exponent  { $$ = pow($1, $3); }
+	  primary POW exponent  { $$ = new_binop(OP_POW, $1, $3); }
 	| primary               { $$ = $1; }
 	;
 
 exponent:
-	  INTEGER POW exponent  { $$ = pow($1, $3); }
-	| INTEGER               { $$ = $1; }
+	  INTEGER POW exponent  { $$ = new_binop(OP_POW, new_const($1), $3); }
+	| INTEGER               { $$ = new_const($1); }
 	;
 
 primary:
-	  INTEGER                   { $$ = $1; }
-	| FLOAT                     { $$ = $1; }
+	  INTEGER                   { $$ = new_const($1); }
+	| FLOAT                     { $$ = new_const($1); }
 	/* | PVAR */
 	/* | DOLLAR IDENT */
 	| LPAREN expression RPAREN  { $$ = $2; }
 	;
 
 %%
-
-void yyerror(const char *s)
-{
-    fprintf(stderr, "%s at line %d near '%s'\n", s, yylineno, yytext);
-}
-
-int main(int argc, char *argv[])
-{
-	if (argc < 2 || (argv[1][0] == '-' && argv[1][1] == '\0'))
-		yyin = stdin;
-	else {
-		yyin = fopen(argv[1], "r");
-		if (!yyin) {
-			perror(argv[1]);
-			return 1;
-		}
-	}
-
-	yyparse();
-
-	if (yyin != stdin)
-		fclose(yyin);
-
-	return 0;
-}

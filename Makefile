@@ -7,26 +7,35 @@ YFLAGS = -d
 
 TARGET = nipel
 
-OBJS = lexer.o parser.o
+OBJ = main.o lexer.o parser.o ast.o eval.o
 
 all: $(TARGET)
 
-$(TARGET): $(OBJS)
+$(TARGET): $(OBJ)
 	$(CC) $(CFLAGS) -o $@ $^ -lm
+
+main.o: main.c
+	$(CC) $(CFLAGS) -c $<
 
 lexer.o: lexer.c parser.h
 	$(CC) $(CFLAGS) -c $<
 
-parser.o: parser.c
+parser.o: parser.c ast.h
+	$(CC) $(CFLAGS) -c $<
+
+ast.o: ast.c ast.h
+	$(CC) $(CFLAGS) -c $<
+
+eval.o: eval.c eval.h ast.h
 	$(CC) $(CFLAGS) -c $<
 
 lexer.c: lexer.l parser.h
-	$(LEX) -o lexer.c $<
+	$(LEX) -o $@ $<
 
 parser.c parser.h: parser.y
 	$(YACC) $(YFLAGS) -o $@ $<
 
 clean:
-	rm -f $(TARGET) $(OBJS) lexer.c parser.c parser.h 
+	rm -f $(TARGET) $(OBJ) lexer.c parser.c parser.h 
 
 .PHONY: all clean
