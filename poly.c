@@ -53,6 +53,7 @@ static int monomial_cmp(const void *a, const void *b)
 	/* if monomials are equal, return zero */
 	return 0;
 }
+
 /* Normalize polynomial to canonical form (merge identical monomials)
  *
  * Sorts monomials and merges identical ones
