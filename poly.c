@@ -146,7 +146,7 @@ Polynomial poly_copy(Polynomial p)
 		res->terms[i].coeff = p->terms[i].coeff;
 		res->terms[i].degree = p->terms[i].degree;
 		memcpy(res->terms[i].powers, p->terms[i].powers,
-		       sizeof(p->terms[i].powers));
+			sizeof(p->terms[i].powers));
 	}
 
 	return res;
@@ -228,8 +228,8 @@ Polynomial poly_sub(Polynomial a, Polynomial b)
 	/* negate all monomials from 'b' and append them to 'res' */
 	for (unsigned int i = 0; i < b->size; i++) {
 		Monomial m = b->terms[i];
-        m.coeff = -m.coeff;
-        res->terms[res->size++] = m;
+		m.coeff = -m.coeff;
+		res->terms[res->size++] = m;
 	}
 
 	/* normalize to canonical form */
