@@ -5,40 +5,44 @@ typedef struct node *Node;
 
 struct node {
 	enum {
-		N_CONST,   /* constants */
-		N_VAR,     /* variables */
+		N_NUM,     /* mumeric constants */
+		N_PVAR,    /* polynomial variables */
+		N_IDENT,   /* global variables */
 		N_ASSIGN,  /* assignments */
 		N_BINOP,   /* binary operations */
 		N_UNOP,    /* unary operations */
 	} kind;
 
 	union {
-		double val;  /* N_CONST */
+		double val;   /* N_NUM */
 
-		char *name;  /* N_VAR */
+		char var;     /* N_PVAR */
+
+		char *ident;  /* N_IDENT */
 
 		struct {
-			char *name;
+			char *ident;
 			Node expr;
 		} assign;  /* N_ASSIGN */
 
 		struct {
-			enum { OP_ADD, OP_SUB, OP_MUL, OP_DIV, OP_POW } oper;
+			enum { OP_ADD, OP_SUB, OP_MUL, OP_DIV, OP_POW } op;
 			Node left;
 			Node right;
 		} binop;  /* N_BINOP */
 
 		struct {
-			enum { OP_NEG } oper;
+			enum { OP_NEG } op;
 			Node expr;
 		} unop;  /* N_UNOP */
-
 	} u;
 };
 
-Node node_const(double v);
-Node node_var(char *name);
-Node node_assign(char *name, Node expr);
+/* Constructors */
+Node node_num(double val);
+Node node_pvar(char var);
+Node node_ident(char *ident);
+Node node_assign(char *ident, Node expr);
 Node node_binop(int op, Node left, Node right);
 Node node_unop(int op, Node expr);
 

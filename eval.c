@@ -1,58 +1,77 @@
+#include "eval.h"
+#include <stdio.h>
+#include <stdlib.h>
+#include <math.h>
 #include "ast.h"
 #include "env.h"
-#include <stdio.h>
-#include <math.h>
+#include "poly.h"
 
 
-double eval(Node t)
+Polynomial eval(Node n)
 {
-	switch (t->kind) {
+	switch (n->kind) {
 
-	case N_CONST:
-		return t->u.val;
+	case N_NUM:
+		return poly_const(n->u.val);
 
-	case N_VAR:
-		return env_get(t->u.name);
+	case N_PVAR:
+		return poly_var(n->u.var);
+
+	case N_IDENT:
+		return env_get(n->u.ident);
 
 	case N_ASSIGN: {
-		double v = eval(t->u.assign.expr);
-		env_set(t->u.assign.name, v);
-		return v;
-    }
+		Polynomial p = eval(n->u.assign.expr);
+		env_set(n->u.assign.ident, poly_copy(p));  /* env gets its own copy */
+		return p;  /* caller gets original */
+	}
 
 	case N_BINOP: {
-		double l = eval(t->u.binop.left);
-		double r = eval(t->u.binop.right);
-
-		switch (t->u.binop.oper) {
+		Polynomial l = eval(n->u.binop.left);
+		Polynomial r = eval(n->u.binop.right);
+		Polynomial res = NULL;
+		switch (n->u.binop.op) {
 		case OP_ADD:
-			return l + r;
+			res = poly_add(l, r);
+			break;
 		case OP_SUB:
-			return l - r;
+			res = poly_sub(l, r);
+			break;
 		case OP_MUL:
-			return l * r;
+			res = poly_mul(l, r);
+			break;
 		case OP_DIV:
-			return l / r;
+			res = poly_div(l, r);
+			break;
 		case OP_POW: {
-			if (r < 0) {
-				fprintf(stderr, "semantic error: negative exponent\n");
-				return 0;
+			int exp;
+			if(!poly_is_int(r, &exp)) {
+				fprintf(stderr,
+				        "semantic error: exponent must be integer\n");
+				exit(1);
 			}
-			double intpart;
-			if (modf(r, &intpart) != 0.0) {
-				fprintf(stderr, "semantic error: non-integer exponent\n");
-				return 0;
+			if (exp < 0) {
+				fprintf(stderr,
+				        "semantic error: exponent must be positive\n");
+				exit(1);
 			}
-			return pow(l, r);
+			res = poly_pow(l, (unsigned int)exp);
+			break;
 		}
 		}
-		break;
+		poly_free(l);
+		poly_free(r);
+		return res;
 	}
 
 	case N_UNOP:
-		switch (t->u.unop.oper) {
-			case OP_NEG:
-				return -eval(t->u.unop.expr);
+		switch (n->u.unop.op) {
+		case OP_NEG: {
+			Polynomial x = eval(n->u.unop.expr);
+			Polynomial res = poly_neg(x);
+			poly_free(x);
+			return res;
+		}
 		}
 		break;
 	}

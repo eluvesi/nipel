@@ -2,7 +2,8 @@
 #define EVAL_H
 
 #include "ast.h"
+#include "poly.h"
 
-double eval(Node t);
+Polynomial eval(Node n);
 
 #endif /* ifndef EVAL_H */

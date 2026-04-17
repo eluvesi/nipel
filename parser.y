@@ -1,9 +1,11 @@
 %code {
 	#include <stdio.h>
 	#include "eval.h"
+	#include "poly.h"
 
 	extern int yylineno;
 	extern char *yytext;
+	extern int is_interactive;
 
 	int yylex(void);
 	void yyerror(const char *s)
@@ -24,11 +26,13 @@
 %union {
 	double dval;
 	char *sval;
+	char pvar;
 	Node node;
 }
 
 %token <dval> NUMBER
-%token <sval> STRING IDENT PVAR
+%token <sval> STRING IDENT
+%token <pvar> PVAR
 %token ASSIGN ADD SUB MUL DIV POW
 %token LPAREN RPAREN DOLLAR NEWLINE
 
@@ -47,9 +51,20 @@ line:
 	;
 
 statement:
-	  assignment { printf("%g\n", eval($1)); }
-	| expression { printf("%g\n", eval($1)); }
-	| STRING     { puts($1); }
+	  assignment	{
+	            		Polynomial p = eval($1);
+	            		if (is_interactive) {
+	            			poly_print(p);
+	            			printf("\n> ");
+	            		}
+	            	}
+	| expression	{
+	            		poly_print(eval($1));
+	            		printf("\n");
+	            		if (is_interactive)
+	            			printf("> ");
+	            	}
+	| STRING    	{ printf("%s", $1); }
 	;
 
 assignment:
@@ -82,9 +97,9 @@ power:
 	;
 
 primary:
-	  NUMBER                    { $$ = node_const($1); }
-	/* | PVAR */
-	| DOLLAR IDENT              { $$ = node_var($2); }
+	  NUMBER                    { $$ = node_num($1); }
+	| PVAR                      { $$ = node_pvar($1); }
+	| DOLLAR IDENT              { $$ = node_ident($2); }
 	| LPAREN expression RPAREN  { $$ = $2; }
 	;
 
