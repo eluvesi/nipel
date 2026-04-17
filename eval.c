@@ -1,7 +1,6 @@
 #include "eval.h"
 #include <stdio.h>
 #include <stdlib.h>
-#include <math.h>
 #include "ast.h"
 #include "env.h"
 #include "poly.h"
