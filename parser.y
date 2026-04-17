@@ -59,12 +59,15 @@ statement:
 	            			poly_print(p);
 	            			printf("\n> ");
 	            		}
+	            		poly_free(p);
 	            	}
 	| expression	{
-	            		poly_print(eval($1));
+	            		Polynomial p = eval($1);
+	            		poly_print(p);
 	            		printf("\n");
 	            		if (is_interactive)
 	            			printf("> ");
+	            		poly_free(p);
 	            	}
 	| STRING    	{ printf("%s", $1); }
 	;
