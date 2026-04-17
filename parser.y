@@ -42,12 +42,14 @@
 
 program:
 	  /* empty */
-	| program line
+	| NEWLINE program           /* skip leading newlines */
+	| statements
 	;
 
-line:
-	  statement NEWLINE
-	| NEWLINE
+statements:
+	  statements NEWLINE statement
+	| statements NEWLINE        /* skip trailing newlines */
+	| statement
 	;
 
 statement:
