@@ -1,11 +1,12 @@
 #ifndef AST_H
 #define AST_H
 
-typedef struct node *Node;
+/* Structs/typedefs */
+typedef struct node *Node;  /* Pointer to node struct */
 
-struct node {
+struct node {  /* Abstract syntax tree node structure */
 	enum {
-		N_NUM,     /* mumeric constants */
+		N_NUM,     /* numeric constants */
 		N_PVAR,    /* polynomial variables */
 		N_IDENT,   /* global variables */
 		N_ASSIGN,  /* assignments */
@@ -38,12 +39,12 @@ struct node {
 	} u;
 };
 
-/* Constructors */
-Node node_num(double val);
-Node node_pvar(char var);
-Node node_ident(char *ident);
-Node node_assign(char *ident, Node expr);
-Node node_binop(int op, Node left, Node right);
-Node node_unop(int op, Node expr);
+/* Constructors  */
+Node node_num(double val);                       /* numeric constant node */
+Node node_pvar(char var);                        /* polynomial variable node */
+Node node_ident(char *ident);                    /* identifier node */
+Node node_assign(char *ident, Node expr);        /* assignment node */
+Node node_binop(int op, Node left, Node right);  /* binary operation node */
+Node node_unop(int op, Node expr);               /* unary operation node */
 
 #endif /* ifndef AST_H */

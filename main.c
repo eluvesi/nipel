@@ -1,10 +1,12 @@
 #include <stdio.h>
 #include <unistd.h>
 
+
 extern FILE *yyin;
 extern int yyparse(void);
 
 int is_interactive = 0;  /* flag for interactive mode */
+
 
 int main(int argc, char *argv[])
 {

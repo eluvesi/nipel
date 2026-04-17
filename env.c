@@ -6,7 +6,10 @@
 
 #define TABSIZE 127  /* hash table size - should be prime */
 
-/* Binding - associates a identifier with a polynomial. */
+
+/* Structs/typedefs */
+
+/* Binding: associates a identifier with a polynomial. */
 struct binding {
 	char *ident;
 	Polynomial poly;
@@ -15,7 +18,10 @@ struct binding {
 
 static struct binding *table[TABSIZE];  /* hash-table */
 
-/* Classic SDBM hash-function */
+
+/* Static helpers */
+
+/* SDBM hash-function */
 static unsigned int hash(char *s)
 {
 	unsigned int h = 0;
@@ -30,23 +36,28 @@ static struct binding *lookup(char *ident)
 	struct binding *b;
 	for (b = table[hash(ident)]; b; b = b->next)
 		if (strcmp(b->ident, ident) == 0)
-		return b;
+			return b;
 	return NULL;
 }
 
+
+/* Environment API */
+
+/* Returns polynomial by its identifier */
 Polynomial env_get(char *ident)
 {
 	/* try to find binding for this ident */
 	struct binding *b = lookup(ident);
 	if (!b) {
 		fprintf(stderr, "semantic error: undefined identifier '%s'\n", ident);
-		return 0;
+		exit(1);
 	}
 
 	/* return copy to avoid accidentally freeing memory for table elements */
 	return poly_copy(b->poly);
 }
 
+/* Creates new identifier<-->polynomial binding */
 void env_set(char *ident, Polynomial poly)
 {
 	/* try to find binding for this ident */
@@ -54,9 +65,10 @@ void env_set(char *ident, Polynomial poly)
 
 	/* if binding for this ident already exist */
 	if (b) {
-		if(b->poly)  /* free up memory from old polynomial */
+		/* replace old value (environment owns stored polynomial) */
+		if(b->poly)
 			poly_free(b->poly);
-		b->poly = poly;  /* take ownership over poly */
+		b->poly = poly;
 		return;
 	}
 

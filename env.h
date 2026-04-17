@@ -6,7 +6,7 @@
 /* Returns polynomial by its identifier */
 Polynomial env_get(char *ident);
 
-/* Creates new polynomial-identifier binding */
+/* Creates new identifier<-->polynomial binding */
 void env_set(char *ident, Polynomial poly);
 
 #endif /* ifndef ENV_H */
