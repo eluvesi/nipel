@@ -38,8 +38,8 @@
 "$"		return DOLLAR;
 \n 		return NEWLINE;
 
-\#.*            /* eat up one-line comments */
-[[:blank:]]+    /* eat up blank symbols */
+\#.*        	/* eat up one-line comments */
+[[:blank:]]+	/* eat up blank symbols */
 
 .	{
  		fprintf(stderr,

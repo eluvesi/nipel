@@ -40,25 +40,35 @@ Polynomial eval(Node n)
 
 		switch (n->u.binop.op) {
 		case OP_ADD:
+			/* addition */
 			res = poly_add(l, r);
 			break;
+
 		case OP_SUB:
+			/* subtraction */
 			res = poly_sub(l, r);
 			break;
+
 		case OP_MUL:
+			/* multiplication */
 			res = poly_mul(l, r);
 			break;
+
 		case OP_DIV:
+			/* division */
 			res = poly_div(l, r);
 			break;
+
 		case OP_POW: {
-			/* check that exponent is positive integer */
+			/* exponentiation */
 			int exp;
 			if(!poly_is_int(r, &exp)) {
+				/* check that exponent is integer */
 				fprintf(stderr, "semantic error: exponent must be integer\n");
 				exit(1);
 			}
 			if (exp < 0) {
+				/* check that exponent is positive */
 				fprintf(stderr, "semantic error: exponent must be positive\n");
 				exit(1);
 			}
@@ -79,11 +89,10 @@ Polynomial eval(Node n)
 		res = NULL;
 
 		switch (n->u.unop.op) {
-		case OP_NEG: {
+		case OP_NEG:
 			/* unary minus */
 			res = poly_neg(x);
 			break;
-		}
 		}
 
 		poly_free(x);

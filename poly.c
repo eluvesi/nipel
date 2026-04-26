@@ -54,7 +54,8 @@ static int monomial_cmp(const void *a, const void *b)
 	return 0;
 }
 
-/* Normalize polynomial to canonical form (merge identical monomials)
+/*
+ * Normalize polynomial to canonical form (merge identical monomials)
  *
  * Sorts monomials and merges identical ones
  * Removes zero coefficients and combines similar monomials
@@ -147,7 +148,7 @@ Polynomial poly_copy(Polynomial p)
 		res->terms[i].coeff = p->terms[i].coeff;
 		res->terms[i].degree = p->terms[i].degree;
 		memcpy(res->terms[i].powers, p->terms[i].powers,
-			sizeof(p->terms[i].powers));
+		       sizeof(p->terms[i].powers));
 	}
 
 	return res;
